@@ -8,6 +8,8 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"os/exec"
+	"time"
 )
 
 // ImageRequest is a struct that represents an image request
@@ -15,14 +17,79 @@ type ImageRequest struct {
 	ImageName string `json:"imageName"`
 }
 
-var predictor Predictor
+// Logging of experimental results
+var fnTimings map[string][]int64
 
+func logFn(fnName string, elapsedTime time.Duration) {
+	_, contains := fnTimings[fnName]
+	if !contains {
+		fnTimings[fnName] = make([]int64, 0)
+	}
+	fnTimings[fnName] = append(fnTimings[fnName], elapsedTime.Microseconds())
+}
+
+func DumpData(w http.ResponseWriter, r *http.Request) {
+	dumpData("sampleData.txt")
+}
+
+func dumpData(filename string) {
+	f, err := os.Create(filename)
+	if err != nil {
+		log.Fatal("Error creating file: ", err)
+	}
+	defer f.Close()
+
+	for fnName := range fnTimings {
+		resultString := fnName + ": ["
+		for timing := range fnTimings[fnName] {
+			resultString = resultString + " " + string(timing)
+		}
+		_, err := f.WriteString(resultString)
+		if err != nil {
+			log.Fatal("Error writing string to file: ", err)
+		}
+	}
+}
+
+
+// var predictor Predictor
+
+
+// Calls the FaasCLI interface
+// assumes that OpenFaas has been set up and that faas-cli exists on the system
+func CallFn(fnName string) {
+	// make a call to the faascli with the requested fnName
+	cmd := fmt.Sprintf("echo 'faasd' | faas-cli invoke %s", fnName)
+	
+	start := time.Now()
+	out, err := exec.Command("bash", "-c", cmd).Output()
+	if err != nil {
+		fmt.Println("could not run command!", err)
+	}
+	fmt.Println("Output: ", string(out))
+	t := time.Now()
+	elapsed := t.Sub(start)
+	fmt.Printf("Elapsed time was %s\n", elapsed)
+}
+
+// Gateway function that receives a fnRequest from the workload
 func ReceiveEvent(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("Receive event called!")
 	body, err := io.ReadAll(r.Body)
 	if err != nil {
 		http.Error(w, "Error reading request body", http.StatusInternalServerError)
 		return
 	}
+
+	// Get query parameters
+	if !r.URL.Query().Has("fnName") {
+		http.Error(w, "No fnName specified", http.StatusInternalServerError)
+		return
+	}
+	fnName := r.URL.Query().Get("fnName")
+	fmt.Println(fnName)
+	CallFn(fnName)
+	_ = fnName
 
 	var imageRequest ImageRequest
 	if err = json.Unmarshal(body, &imageRequest); err != nil {
@@ -42,7 +109,8 @@ func PredictImage(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// send prediction back
-	image := predictor.Predict()
+	// image := predictor.Predict()
+	image := "Jotham"
 	_, err = w.Write([]byte(image))
 	if err != nil {
 		http.Error(w, "Error writing to response writer", http.StatusInternalServerError)
@@ -73,6 +141,9 @@ func initialize() {
 	if err := scanner.Err(); err != nil {
 		log.Panicf("Error scanning file: %v", err)
 	}
+
+	// initialize logging
+	fnTimings = make(map[string][]int64)
 }
 
 func usage() {
@@ -88,6 +159,7 @@ func main() {
 
 	http.HandleFunc("/receive", ReceiveEvent)
 	http.HandleFunc("/predict", PredictImage)
+	http.HandleFunc("/dumpData", DumpData)
 	err := http.ListenAndServe(fmt.Sprintf(":%d", port), nil)
 	if err != nil {
 		log.Panic(err)
