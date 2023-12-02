@@ -6,19 +6,6 @@ import subprocess
 
 from workload_format import csv_params
 
-# This is a map associating function numbers with function names,
-# formatted as a URL path. 
-# For example,
-# {0: '/myfunction-1', 1: '/otherfunction', 2: '/finalfunction'} 
-#
-# This could be defined in code, or read in from a file. For now, I am 
-# hardcoding an example function map. inovke with faas_url='https://google.com'
-function_map = {
-    0: "/travel",
-    1: "/imghp",
-    2: "/maps"
-}
-
 def usage():
     print("[USAGE]: python invoker.py {workload_file} {function_file} {slavemaster_url}")
     exit()
