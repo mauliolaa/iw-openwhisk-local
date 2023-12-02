@@ -10,6 +10,7 @@ import (
 	"os"
 	"os/exec"
 	"time"
+	"strconv"
 )
 
 // ImageRequest is a struct that represents an image request
@@ -18,18 +19,20 @@ type ImageRequest struct {
 }
 
 // Logging of experimental results
-var fnTimings map[string][]int64
+var fnTimings map[string][]time.Duration
 
 func logFn(fnName string, elapsedTime time.Duration) {
 	_, contains := fnTimings[fnName]
 	if !contains {
-		fnTimings[fnName] = make([]int64, 0)
+		fnTimings[fnName] = make([]time.Duration, 0)
 	}
-	fnTimings[fnName] = append(fnTimings[fnName], elapsedTime.Microseconds())
+	elapsedTime.Hours()
+	fnTimings[fnName] = append(fnTimings[fnName], elapsedTime)
 }
 
 func DumpData(w http.ResponseWriter, r *http.Request) {
 	dumpData("sampleData.txt")
+	w.WriteHeader(http.StatusOK)
 }
 
 func dumpData(filename string) {
@@ -41,9 +44,10 @@ func dumpData(filename string) {
 
 	for fnName := range fnTimings {
 		resultString := fnName + ": ["
-		for timing := range fnTimings[fnName] {
-			resultString = resultString + " " + string(timing)
+		for _, timing := range fnTimings[fnName] {
+			resultString = resultString + " " + strconv.FormatInt(timing.Microseconds(), 10)
 		}
+		resultString = resultString + "]\n"
 		_, err := f.WriteString(resultString)
 		if err != nil {
 			log.Fatal("Error writing string to file: ", err)
@@ -75,6 +79,7 @@ func CallFn(fnName string, parameters map[string]string) {
 	t := time.Now()
 	elapsed := t.Sub(start)
 	fmt.Printf("Elapsed time was %s\n", elapsed)
+	logFn(fnName, elapsed)
 }
 
 // Gateway function that receives a fnRequest from the workload
@@ -159,7 +164,7 @@ func initialize() {
 	}
 
 	// initialize logging
-	fnTimings = make(map[string][]int64)
+	fnTimings = make(map[string][]time.Duration)
 }
 
 func usage() {
