@@ -55,8 +55,8 @@ func dumpData(filename string) {
 // var predictor Predictor
 
 
-// Calls the FaasCLI interface
-// assumes that OpenFaas has been set up and that faas-cli exists on the system
+// Calls the Openwhisk interface
+// assumes that Openwhisk has been set up and that wsk cli utility exists on the system
 func CallFn(fnName string, parameters map[string]string) {
 	// make a call to the faascli with the requested fnName
 	cmd := fmt.Sprintf("wsk action invoke %s --result ", fnName)
