@@ -7,7 +7,16 @@ import subprocess
 from workload_format import csv_params
 
 def usage():
-    print("[USAGE]: python invoker.py {workload_file} {function_file} {slavemaster_url}")
+    usage = """
+    [Slavemaster Simulate]
+    Usage:
+        python invoker.py {workload_file} {function_file} {slavemaster_url}
+    Params:
+        workload_file: name of the workload file that the simulator uses
+        function_file: name of function file that contains functions that are invoked on Openwhisk
+        slavemaster_url: the url with which Slavemaster is hosted on
+    """
+    print(usage)
     exit()
 
 if __name__ == "__main__":
@@ -35,9 +44,9 @@ if __name__ == "__main__":
     # Install all functions into openwhisk
     with open(function_filename, "r") as inf:
         lines = inf.read().splitlines()
-        # Format of the file should be [fnName in whisk] [filename]
+        # Format of the file should be [fnName in whisk] [filename] [params (ignored)]
         for line in lines:
-            fnName, filename = line.split(" ")
+            fnName, filename = line.split(" ")[:2]
             command = f"wsk action create {fnName} {filename}"
             result = subprocess.run(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
             if result.returncode != 0:

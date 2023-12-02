@@ -10,3 +10,7 @@ First, you want to install the following stuff
 2. Run slavemaster
 3. Have a generator and functions
 4. Run the simulator.py
+
+
+## Format of the function workload file
+[name of function in openwhisk] [filename of function] [params comma delimited]
