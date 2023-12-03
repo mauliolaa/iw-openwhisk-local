@@ -23,7 +23,7 @@ type Prediction struct {
 // NilPrediction is returned if there is no function to predict yet
 var NilPrediction = &Prediction{FnName: "", FnParameters: nil}
 
-// Predictor is the interface that Slavemaster uses to decide which function to ping to keep alive.
+// Predictor is the interface that taskmaster uses to decide which function to ping to keep alive.
 type Predictor interface {
 	// Update updates the Predictor's internal state
 	// everytime a serverless function is invoked for real

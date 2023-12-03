@@ -21,29 +21,29 @@ cd openwhisk
 
 This will take a while to run on your first build but subsequent builds will be faster.
 
-2. Run slavemaster
+2. Run taskmaster
 
-You will need to have the configuration files ready. You may refer to the sample config [here](slavemaster/sampleconfig.yaml) as well as the sample lru predictor strategy [here](slavemaster/lru_config.yaml). Then in a new terminal process
+You will need to have the configuration files ready. You may refer to the sample config [here](taskmaster/sampleconfig.yaml) as well as the sample lru predictor strategy [here](taskmaster/lru_config.yaml). Then in a new terminal process
 
 ```bash
-cd slavemaster
+cd taskmaster
 go run main.go sampleconfig.yaml lru_config.yaml
 ```
 
-This spawns the slavemaster http server and it should wait on port localhost 1024
+This spawns the taskmaster http server and it should wait on port localhost 1024
 
 3. Prepare functions and workload file
 
-You should have some sample functions ready or simply use our functions at slavemaster/functions.
-Prepare the functions test file, refer to [this](slavemaster/functions_test).
-To generate a random workload file, refer to the [generator](slavemaster/generator.py)
+You should have some sample functions ready or simply use our functions at taskmaster/functions.
+Prepare the functions test file, refer to [this](taskmaster/functions_test).
+To generate a random workload file, refer to the [generator](taskmaster/generator.py)
 
 4. Run the simulator.py
 
 In a new terminal process, run
 
 ```bash
-cd slavemaster
+cd taskmaster
 python simulate.py test_workload functions_test http://127.0.0.1:1024
 ```
 
@@ -55,7 +55,7 @@ When the workload is finished, run the following command
 curl -X get "localhost:1024/dumpData"
 ```
 
-This causes slavemaster to dump the experimental metrics into a log file for further analysis.
+This causes taskmaster to dump the experimental metrics into a log file for further analysis.
 
 ## File formats
 

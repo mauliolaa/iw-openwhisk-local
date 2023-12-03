@@ -3,19 +3,20 @@ package main
 import (
 	// "encoding/json"
 	"fmt"
-	"gopkg.in/yaml.v2"
 	"io"
 	"log"
 	"net/http"
 	"os"
 	"os/exec"
-	"slavemaster/predictor"
 	"strconv"
+	"taskmaster/predictor"
 	"time"
+
+	"gopkg.in/yaml.v2"
 )
 
-// SlavemasterConfig is the configuration file parsed from the yaml config file
-type SlavemasterConfig struct {
+// taskmasterConfig is the configuration file parsed from the yaml config file
+type taskmasterConfig struct {
 	PollingPeriodicity int64  `yaml:"pollingPeriodicity"`
 	Strategy           string `yaml:"strategy"`
 }
@@ -57,7 +58,7 @@ func dumpData(filename string) {
 	}
 }
 
-var Config SlavemasterConfig = SlavemasterConfig{}
+var Config taskmasterConfig = taskmasterConfig{}
 var strategy predictor.Predictor
 
 // Calls the Openwhisk interface

@@ -1,0 +1,5 @@
+*.out
+*.aux
+.idea
+*.log
+*.pdf

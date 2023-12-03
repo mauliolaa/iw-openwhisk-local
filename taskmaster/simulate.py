@@ -10,13 +10,13 @@ from workload_format import csv_params
 
 def usage():
     usage = """
-    [Slavemaster Simulate]
+    [taskmaster Simulate]
     Usage:
-        python invoker.py {workload_file} {function_file} {slavemaster_url}
+        python invoker.py {workload_file} {function_file} {taskmaster_url}
     Params:
         workload_file: name of the workload file that the simulator uses
         function_file: name of function file that contains functions that are invoked on Openwhisk
-        slavemaster_url: the url with which Slavemaster is hosted on
+        taskmaster_url: the url with which taskmaster is hosted on
     """
     print(usage)
     exit()

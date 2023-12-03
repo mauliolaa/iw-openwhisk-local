@@ -9,7 +9,7 @@ import numpy as np
 
 def usage():
     usage = """
-    [Slavemaster Workload Generator]
+    [taskmaster Workload Generator]
     Usage:
         python generator.py {filename} {n} {mean} {variance} {function_file}
     Params:
