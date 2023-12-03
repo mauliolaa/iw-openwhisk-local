@@ -3,24 +3,21 @@ package main
 import (
 	// "encoding/json"
 	"fmt"
+	"gopkg.in/yaml.v2"
 	"io"
 	"log"
 	"net/http"
 	"os"
 	"os/exec"
+	"slavemaster/predictor"
 	"strconv"
 	"time"
-	"gopkg.in/yaml.v2"
 )
-
-// ImageRequest is a struct that represents an image request
-type ImageRequest struct {
-	ImageName string `json:"imageName"`
-}
 
 // SlavemasterConfig is the configuration file parsed from the yaml config file
 type SlavemasterConfig struct {
-	PollingPeriodicity int64 `yaml:"pollingPeriodicity"`
+	PollingPeriodicity int64  `yaml:"pollingPeriodicity"`
+	Strategy           string `yaml:"strategy"`
 }
 
 // Logging of experimental results
@@ -60,10 +57,8 @@ func dumpData(filename string) {
 	}
 }
 
-
-// var predictor Predictor
 var Config SlavemasterConfig = SlavemasterConfig{}
-
+var strategy predictor.Predictor
 
 // Calls the Openwhisk interface
 // assumes that Openwhisk has been set up and that wsk cli utility exists on the system
@@ -74,7 +69,7 @@ func CallFn(fnName string, parameters map[string]string) {
 	for param, value := range parameters {
 		cmd = cmd + fmt.Sprintf("--param %s %s ", param, value)
 	}
-	
+
 	start := time.Now()
 	fmt.Println("Executing command ", cmd)
 	out, err := exec.Command("bash", "-c", cmd).Output()
@@ -123,7 +118,8 @@ func ReceiveEvent(w http.ResponseWriter, r *http.Request) {
 	// 	return
 	// }
 
-	// add to timeseries database
+	// Update the predictor
+	updateStrategy(fnName, params)
 	w.WriteHeader(http.StatusOK)
 }
 
@@ -149,29 +145,60 @@ func PredictImage(w http.ResponseWriter, r *http.Request) {
 func initialize() {
 	// Parse yaml file into Config struct
 	config_filepath := os.Args[1]
+	predictor_filepath := os.Args[2]
 	yamlFile, err := os.ReadFile(config_filepath)
 	if err != nil {
 		log.Fatalf("Error reading configuration file: %v", err)
 	}
-	
+
 	err = yaml.Unmarshal(yamlFile, &Config)
 	if err != nil {
 		log.Fatalf("Error parsing yaml file: %v", err)
 	}
 	fmt.Printf("%+v", Config)
 	fmt.Printf("Config periodicity %d\n", Config.PollingPeriodicity)
+	// initialize the strategy
+	switch Config.Strategy {
+	case "lru":
+		strategy = predictor.NewLRU(predictor_filepath)
+	default:
+		log.Fatalf("Strategy not specified")
+	}
+	// launch the periodic scheduling algorithm
+	go schedule()
 	// initialize logging
 	fnTimings = make(map[string][]time.Duration)
 }
 
 func usage() {
-	if len(os.Args) != 2 {
-		log.Panic("[Usage]: [config]")
+	if len(os.Args) != 3 {
+		log.Panic("[Usage]: [general_config] [predictor_config]")
 	}
 }
 
+func updateStrategy(fnName string, fnParams map[string]string) {
+	log.Printf("Updating strategy with %s\n", fnName)
+	info := make(map[string]any)
+	var fnRequest predictor.FnRequest
+	fnRequest = predictor.FnRequest{
+		FnName:       fnName,
+		FnParameters: fnParams,
+	}
+	// Add more information as we go along...
+	info["fnRequest"] = fnRequest
+	strategy.Update(info)
+}
+
 func predict() {
-	fmt.Println("Predict called!")
+	log.Println("Predict called!")
+	response := strategy.Predict()
+	if response == predictor.NilPrediction {
+		log.Println("No function to be called!")
+		return
+	}
+	log.Printf("Pinging %s\n", response)
+	CallFn(response.FnName, response.FnParameters)
+	// TODO: Add metrics here to observe usefulness of pinging
 }
 
 func schedule() {
@@ -180,7 +207,7 @@ func schedule() {
 
 	for {
 		select {
-		case<-ticker.C:
+		case <-ticker.C:
 			predict()
 		}
 	}
@@ -190,9 +217,6 @@ func main() {
 	usage()
 	initialize()
 	port := 1024
-
-	// launch the periodic scheduling algorithm
-	go schedule()
 
 	// default handlers
 	http.HandleFunc("/receive", ReceiveEvent)
