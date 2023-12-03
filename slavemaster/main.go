@@ -1,7 +1,6 @@
 package main
 
 import (
-	"bufio"
 	// "encoding/json"
 	"fmt"
 	"io"
@@ -9,13 +8,19 @@ import (
 	"net/http"
 	"os"
 	"os/exec"
-	"time"
 	"strconv"
+	"time"
+	"gopkg.in/yaml.v2"
 )
 
 // ImageRequest is a struct that represents an image request
 type ImageRequest struct {
 	ImageName string `json:"imageName"`
+}
+
+// SlavemasterConfig is the configuration file parsed from the yaml config file
+type SlavemasterConfig struct {
+	PollingPeriodicity int64 `yaml:"pollingPeriodicity"`
 }
 
 // Logging of experimental results
@@ -57,6 +62,7 @@ func dumpData(filename string) {
 
 
 // var predictor Predictor
+var Config SlavemasterConfig = SlavemasterConfig{}
 
 
 // Calls the Openwhisk interface
@@ -141,28 +147,19 @@ func PredictImage(w http.ResponseWriter, r *http.Request) {
 
 // initialize reads in the config file and initializes the scheduler accordingly
 func initialize() {
-	filepath := os.Args[1]
-	file, err := os.Open(filepath)
+	// Parse yaml file into Config struct
+	config_filepath := os.Args[1]
+	yamlFile, err := os.ReadFile(config_filepath)
 	if err != nil {
-		log.Panicf("Error reading configuration file: %v", err)
+		log.Fatalf("Error reading configuration file: %v", err)
 	}
-	defer file.Close()
-
-	scanner := bufio.NewScanner(file)
-	for scanner.Scan() {
-		// format of configuration file should be image specifications
-		// some notion of the image's resource requirements should be taken into account
-		// first line should be Predictor choice
-		// lines afterwards should be resources available?
-		// lines afterwards should be images?
-		line := scanner.Text()
-		_ = line
+	
+	err = yaml.Unmarshal(yamlFile, &Config)
+	if err != nil {
+		log.Fatalf("Error parsing yaml file: %v", err)
 	}
-
-	if err := scanner.Err(); err != nil {
-		log.Panicf("Error scanning file: %v", err)
-	}
-
+	fmt.Printf("%+v", Config)
+	fmt.Printf("Config periodicity %d\n", Config.PollingPeriodicity)
 	// initialize logging
 	fnTimings = make(map[string][]time.Duration)
 }
@@ -173,11 +170,31 @@ func usage() {
 	}
 }
 
+func predict() {
+	fmt.Println("Predict called!")
+}
+
+func schedule() {
+	// use the ticker from the time package
+	ticker := time.NewTicker(time.Duration(Config.PollingPeriodicity) * time.Second)
+
+	for {
+		select {
+		case<-ticker.C:
+			predict()
+		}
+	}
+}
+
 func main() {
 	usage()
 	initialize()
 	port := 1024
 
+	// launch the periodic scheduling algorithm
+	go schedule()
+
+	// default handlers
 	http.HandleFunc("/receive", ReceiveEvent)
 	http.HandleFunc("/predict", PredictImage)
 	http.HandleFunc("/dumpData", DumpData)
