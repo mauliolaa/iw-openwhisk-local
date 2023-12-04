@@ -63,7 +63,7 @@ var strategy predictor.Predictor
 
 // Calls the Openwhisk interface
 // assumes that Openwhisk has been set up and that wsk cli utility exists on the system
-func CallFn(fnName string, parameters map[string]string) {
+func CallFn(fnName string, parameters map[string]string, logData bool) {
 	// make a call to the faascli with the requested fnName
 	cmd := fmt.Sprintf("wsk action invoke %s --result ", fnName)
 	fmt.Println(parameters)
@@ -81,7 +81,9 @@ func CallFn(fnName string, parameters map[string]string) {
 	t := time.Now()
 	elapsed := t.Sub(start)
 	fmt.Printf("Elapsed time was %s\n", elapsed)
-	logFn(fnName, elapsed)
+	if logData {
+		logFn(fnName, elapsed)
+	}
 }
 
 // Gateway function that receives a fnRequest from the workload
@@ -112,7 +114,7 @@ func ReceiveEvent(w http.ResponseWriter, r *http.Request) {
 	fmt.Println(fnName)
 	// Acknowledge immediately
 	w.WriteHeader(http.StatusOK)
-	go CallFn(fnName, params)
+	go CallFn(fnName, params, true)
 	// Update the predictor
 	updateStrategy(fnName, params)
 }
@@ -191,7 +193,7 @@ func predict() {
 		return
 	}
 	log.Printf("Pinging %s\n", response)
-	CallFn(response.FnName, response.FnParameters)
+	CallFn(response.FnName, response.FnParameters, false)
 	// TODO: Add metrics here to observe usefulness of pinging
 }
 
