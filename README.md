@@ -62,3 +62,11 @@ This causes taskmaster to dump the experimental metrics into a log file for furt
 ### Format of the function workload file
 
 [name of function in openwhisk] [filename of function] [params comma delimited]
+
+
+## TODO
+
+1. Implement experimental benchmarking scripts?
+   2. Need to work on proper tabulation
+2. Implement more extreme workloads
+3. Implement more strategies

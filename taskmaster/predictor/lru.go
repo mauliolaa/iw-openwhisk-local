@@ -73,17 +73,25 @@ func (lru *LRU) Update(info map[string]any) {
 	//  1. fnRequest: FnRequest struct
 	var fnRequest FnRequest
 	fnRequest = info["fnRequest"].(FnRequest)
-	//:= info["fnRequest"]
+	log.Printf("%+v\n", fnRequest)
 	// LRU algorithm
 	// First check if it exists in the list
 	_, contains := lru.fnSet[fnRequest.FnName]
+	log.Printf("Contains = %v\n", contains)
 	if !contains { // if it does not exist in the list, simple add
 		lru.add(fnRequest)
 	} else { // if it exists in the list, move it to the front of the list
 		var e *list.Element
-		for e = lru.lst.Front(); e.Value != fnRequest.FnName; e = e.Next() {
+		// FIXME: Investigate why e can still be nil?
+		// maybe the set is not being updated correctly
+		for e = lru.lst.Front(); e != nil && e.Value != fnRequest.FnName; e = e.Next() {
 		}
-		lru.lst.MoveToFront(e)
+		// Somehow, it's possible that e cud be nil?
+		if e == nil {
+			lru.add(fnRequest)
+		} else {
+			lru.lst.MoveToFront(e)
+		}
 	}
 	// finally, update the fnParameters
 	lru.fnSet[fnRequest.FnName] = fnRequest.FnParameters

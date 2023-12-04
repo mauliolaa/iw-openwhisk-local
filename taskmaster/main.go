@@ -110,18 +110,11 @@ func ReceiveEvent(w http.ResponseWriter, r *http.Request) {
 		params[param] = value[0]
 	}
 	fmt.Println(fnName)
-	CallFn(fnName, params)
-	_ = fnName
-
-	// var imageRequest ImageRequest
-	// if err = json.Unmarshal(body, &imageRequest); err != nil {
-	// 	http.Error(w, "Error decoding JSON", http.StatusInternalServerError)
-	// 	return
-	// }
-
+	// Acknowledge immediately
+	w.WriteHeader(http.StatusOK)
+	go CallFn(fnName, params)
 	// Update the predictor
 	updateStrategy(fnName, params)
-	w.WriteHeader(http.StatusOK)
 }
 
 func PredictImage(w http.ResponseWriter, r *http.Request) {
