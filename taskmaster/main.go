@@ -153,6 +153,7 @@ func initialize() {
 	}
 	fmt.Printf("%+v", Config)
 	fmt.Printf("Config periodicity %d\n", Config.PollingPeriodicity)
+	
 	// initialize the strategy
 	switch Config.Strategy {
 	case "lru":
@@ -160,8 +161,10 @@ func initialize() {
 	default:
 		log.Fatalf("Strategy not specified")
 	}
-	// launch the periodic scheduling algorithm
-	go schedule()
+	// launch the periodic scheduling algorithm only if the PollingPeriodicity is greater than 0
+	if Config.PollingPeriodicity > 0 {
+		go schedule()
+	}
 	// initialize logging
 	fnTimings = make(map[string][]time.Duration)
 }

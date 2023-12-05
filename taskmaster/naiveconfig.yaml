@@ -1,0 +1,2 @@
+pollingPeriodicity: 0
+strategy: lru
