@@ -3,3 +3,8 @@ hello_world_py functions/hello_world.py name=string,place=string
 simple_math functions/simple_maths.py x=int,y=int
 hello_world_go functions/hello_go.go name=string
 hello_ruby functions/hello_ruby.rb name=string
+arrayrev functions/arrayrev.php name=string,place=string,x=int,y=int
+array functions/array.php name=string,place=string,x=int,y=int
+hello_php functions/hello_php.php name=string
+helloJava functions/Hello.jar name=string
+helloArray functions/HelloArray.jar
