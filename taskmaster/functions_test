@@ -1,3 +1,5 @@
 hello_world_js functions/hello_world.js name=string,place=string
 hello_world_py functions/hello_world.py name=string,place=string
 simple_math functions/simple_maths.py x=int,y=int
+hello_world_go functions/hello_go.go name=string
+hello_ruby functions/hello_ruby.rb name=string
