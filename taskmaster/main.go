@@ -24,6 +24,7 @@ type taskmasterConfig struct {
 
 // Logging of experimental results
 var fnTimings map[string][]time.Duration
+
 // dependent on OS
 var cmdPrompt string
 
@@ -80,7 +81,7 @@ func CallFn(fnName string, parameters map[string]string, logData bool) {
 	if err != nil {
 		fmt.Println("could not run command!", err)
 	}
-	fmt.Println("Output: ", string(out))
+	// fmt.Println("Output: ", string(out))
 	t := time.Now()
 	elapsed := t.Sub(start)
 	fmt.Printf("Elapsed time was %s\n", elapsed)
