@@ -153,11 +153,13 @@ func initialize() {
 	}
 	fmt.Printf("%+v", Config)
 	fmt.Printf("Config periodicity %d\n", Config.PollingPeriodicity)
-	
+
 	// initialize the strategy
 	switch Config.Strategy {
 	case "lru":
 		strategy = predictor.NewLRU(predictor_filepath)
+	case "mfe":
+		strategy = predictor.NewMFE()
 	default:
 		log.Fatalf("Strategy not specified")
 	}
@@ -174,7 +176,7 @@ func usage() {
 		usage := `[Usage]: [general_config] [predictor_config]
 		[general_config]: a yaml file that contains the following parameters
 			pollingPeriodicity: a float
-			strategy: Choose from 'lru', 'pq', 'ml'
+			strategy: Choose from 'lru', 'pq', 'ml', 'mfe'
 		[predictor_config]: a yaml file that corresponds to the predictor.
 		`
 		log.Panic(usage)
