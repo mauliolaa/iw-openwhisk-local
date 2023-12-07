@@ -171,7 +171,13 @@ func initialize() {
 
 func usage() {
 	if len(os.Args) != 3 {
-		log.Panic("[Usage]: [general_config] [predictor_config]")
+		usage := `[Usage]: [general_config] [predictor_config]
+		[general_config]: a yaml file that contains the following parameters
+			pollingPeriodicity: a float
+			strategy: Choose from 'lru', 'pq', 'ml'
+		[predictor_config]: a yaml file that corresponds to the predictor.
+		`
+		log.Panic(usage)
 	}
 }
 
