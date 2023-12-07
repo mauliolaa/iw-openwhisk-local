@@ -77,7 +77,7 @@ func CallFn(fnName string, parameters map[string]string, logData bool) {
 
 	start := time.Now()
 	fmt.Println("Executing command ", cmd)
-	out, err := exec.Command(cmdPrompt, "-c", cmd).Output()
+	_, err := exec.Command(cmdPrompt, "-c", cmd).Output()
 	if err != nil {
 		fmt.Println("could not run command!", err)
 	}
