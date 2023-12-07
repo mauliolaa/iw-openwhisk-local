@@ -2,9 +2,10 @@ package predictor
 
 import (
 	"container/list"
-	"gopkg.in/yaml.v2"
 	"log"
 	"os"
+
+	"gopkg.in/yaml.v2"
 )
 
 type LRUConfig struct {
@@ -71,8 +72,7 @@ func (lru *LRU) add(request FnRequest) {
 func (lru *LRU) Update(info map[string]any) {
 	// map should contain
 	//  1. fnRequest: FnRequest struct
-	var fnRequest FnRequest
-	fnRequest = info["fnRequest"].(FnRequest)
+	var fnRequest FnRequest = info["fnRequest"].(FnRequest)
 	log.Printf("%+v\n", fnRequest)
 	// LRU algorithm
 	// First check if it exists in the list

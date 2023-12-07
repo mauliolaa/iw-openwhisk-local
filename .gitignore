@@ -3,3 +3,9 @@
 .idea
 *.log
 *.pdf
+report.bbl
+report.blg
+report.fdb*
+report.fls
+report.synctex*
+__pycache__
