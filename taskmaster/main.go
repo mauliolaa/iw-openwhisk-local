@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"os"
 	"os/exec"
+	"runtime"
 	"strconv"
 	"taskmaster/predictor"
 	"time"
@@ -23,6 +24,8 @@ type taskmasterConfig struct {
 
 // Logging of experimental results
 var fnTimings map[string][]time.Duration
+// dependent on OS
+var cmdPrompt string
 
 func logFn(fnName string, elapsedTime time.Duration) {
 	_, contains := fnTimings[fnName]
@@ -73,7 +76,7 @@ func CallFn(fnName string, parameters map[string]string, logData bool) {
 
 	start := time.Now()
 	fmt.Println("Executing command ", cmd)
-	out, err := exec.Command("bash", "-c", cmd).Output()
+	out, err := exec.Command(cmdPrompt, "-c", cmd).Output()
 	if err != nil {
 		fmt.Println("could not run command!", err)
 	}
@@ -139,6 +142,12 @@ func PredictImage(w http.ResponseWriter, r *http.Request) {
 
 // initialize reads in the config file and initializes the scheduler accordingly
 func initialize() {
+	switch runtime.GOOS {
+	case "windows":
+		cmdPrompt = "cmd"
+	default:
+		cmdPrompt = "bash"
+	}
 	// Parse yaml file into Config struct
 	config_filepath := os.Args[1]
 	predictor_filepath := os.Args[2]
