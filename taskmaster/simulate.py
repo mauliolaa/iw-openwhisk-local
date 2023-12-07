@@ -35,6 +35,7 @@ def main():
         print(result.stderr)
         exit(1)
     
+    print("Deleting all wsk actions first...")
     for line in result.stdout.splitlines()[1:]:
         action = line.split()[0].split("/")[-1]
         command = f"wsk action delete {action}"
@@ -43,7 +44,9 @@ def main():
             print(result.stderr)
             exit(1)
         
+        
     # Install all functions into openwhisk
+    print("Installing wsk actions...")
     with open(function_filename, "r") as inf:
         lines = inf.read().splitlines()
         # Format of the file should be [fnName in whisk] [filename] [params (ignored)]
@@ -52,10 +55,10 @@ def main():
             command = f"wsk action create {fnName} {filename}"
             if filename.endswith(".jar"):
                 # NOTE: We assume that the main class is literally just the filename minus the extension
-                command = command + "--main " + filename.replace(".jar", "")
+                command = command + " --main " + filename.replace(".jar", "")
             result = subprocess.run(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
             if result.returncode != 0:
-                print(f"Error: {result.stderr}")
+                print(f"Error with installing function: {result.stderr}")
                 exit(1)
 
     start_time = time.time()
