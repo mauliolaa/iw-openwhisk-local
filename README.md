@@ -20,6 +20,11 @@ cd openwhisk
 java -jar bin/openwhisk-standalone.jar > openwhisk_out
 ```
 
+Note: may need to reserve extra jvm memory for openwhisk with -Xmx option. Example:
+```
+java -Xmx4096m -jar bin/openwhisk-standalone.jar > openwhisk_out
+```
+
 This will take a while to run on your first build but subsequent builds will be faster.
 
 
