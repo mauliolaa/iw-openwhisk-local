@@ -52,6 +52,16 @@ We employ a periodicity of 0 which means that the Strategy is never called. This
 
 This Strategy resembles the LRU cache under the following intuition: a function container that was least recently used is most likely to shut down and subsequent function calls will incur the cold start penalty. Therefore, a simple linked list is used to maintain the LRU order and Update will update the internal LRU ordering. When the Strategy is polled, it will ping the lru function and move it back to the front of the queue.
 
+\subsubsection{PQ}
+
+\subsubsection{ML}
+
+Host a flask server with a ML model on it. Update appends to a log file. Train on it. Do inference.
+
+\subsubsection{MFE}
+
+Maintain a counter for each function and then ping the Most Frequently Encountered (MFE)
+
 \section{Experimental Results}
 
 \section{Conclusion and Further work}
