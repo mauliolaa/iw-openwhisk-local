@@ -56,6 +56,10 @@ This Strategy resembles the LRU cache under the following intuition: a function 
 
 This strategy is the same as the LRU strategy, except that the most recently used function will be kept alive. (note, this will likely be a redundant strategy, since its the same as the default strategy of scaling to zero after a set amout of time.)
 
+\subsubsection{RS}
+
+Random selection maintains a list of recently used functions and then keeps a randomly selected function warm.
+
 \subsubsection{PQ}
 
 \subsubsection{ML}
