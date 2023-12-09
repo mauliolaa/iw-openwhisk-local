@@ -98,3 +98,14 @@ openwhisk.counter.invoker_containerStart.warm_counter (counter) - Count of numbe
 
 https://mikhail.io/serverless/coldstarts/aws/
 https://mikhail.io/serverless/coldstarts/aws/languages/
+
+
+## Getting results
+
+Getting experimental results is non-trivial as Openwhisk CLI does not have a good API for displaying results.
+It either shows the time/parameters and not the cold/warm/prewarmed status or it only shows the cold/warm/prewarmed status and not the parameters!
+So we have to obtain our experiment metrics in a rather roundabout way
+
+Taskmaster will invoke all functions without receiving results and receiving the activation id.
+With the activation id, we can keep track of what are pings and what are legitimate non-activations.
+Then we can tabulate the warm/cold counters as well as elapsed timing.
