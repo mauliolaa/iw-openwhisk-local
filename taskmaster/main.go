@@ -9,7 +9,8 @@ import (
 	"os"
 	"os/exec"
 	"runtime"
-	"strconv"
+	"strings"
+	"sync"
 	"taskmaster/predictor"
 	"time"
 
@@ -22,42 +23,27 @@ type taskmasterConfig struct {
 	Strategy           string `yaml:"strategy"`
 }
 
-// Logging of experimental results
-var fnTimings map[string][]time.Duration
-
 // dependent on OS
 var cmdPrompt string
 
-func logFn(fnName string, elapsedTime time.Duration) {
-	_, contains := fnTimings[fnName]
-	if !contains {
-		fnTimings[fnName] = make([]time.Duration, 0)
-	}
-	elapsedTime.Hours()
-	fnTimings[fnName] = append(fnTimings[fnName], elapsedTime)
-}
+// Lock for writing to activationID list
+var activationMU sync.Mutex
+var activationList []string
+
+const TaskmasterOutputFile = "taskmaster_activation_ids.txt"
 
 func DumpData(w http.ResponseWriter, r *http.Request) {
-	dumpData("sampleData.txt")
-	w.WriteHeader(http.StatusOK)
-}
-
-func dumpData(filename string) {
-	f, err := os.Create(filename)
+	log.Print("Dumping data.")
+	f, err := os.Create(TaskmasterOutputFile)
 	if err != nil {
-		log.Fatal("Error creating file: ", err)
+		log.Panic("Unable to create file with err: ", err)
 	}
 	defer f.Close()
 
-	for fnName := range fnTimings {
-		resultString := fnName + ": ["
-		for _, timing := range fnTimings[fnName] {
-			resultString = resultString + " " + strconv.FormatInt(timing.Microseconds(), 10)
-		}
-		resultString = resultString + "]\n"
-		_, err := f.WriteString(resultString)
+	for _, activationId := range activationList {
+		_, err = f.WriteString(activationId)
 		if err != nil {
-			log.Fatal("Error writing string to file: ", err)
+			log.Panic("Error writing to log: ", err)
 		}
 	}
 }
@@ -69,30 +55,32 @@ var strategy predictor.Predictor
 // assumes that Openwhisk has been set up and that wsk cli utility exists on the system
 func CallFn(fnName string, parameters map[string]string, logData bool) {
 	// make a call to the faascli with the requested fnName
-	cmd := fmt.Sprintf("wsk action invoke %s --result ", fnName)
-	fmt.Println(parameters)
+	cmd := fmt.Sprintf("wsk action invoke %s ", fnName)
 	for param, value := range parameters {
 		cmd = cmd + fmt.Sprintf("--param %s %s ", param, value)
 	}
 
-	start := time.Now()
-	fmt.Println("Executing command ", cmd)
-	_, err := exec.Command(cmdPrompt, "-c", cmd).Output()
+	log.Println("Executing command ", cmd)
+	output, err := exec.Command(cmdPrompt, "-c", cmd).Output()
+
 	if err != nil {
-		fmt.Println("could not run command!", err)
+		log.Println("could not run command!", err)
 	}
-	// fmt.Println("Output: ", string(out))
-	t := time.Now()
-	elapsed := t.Sub(start)
-	fmt.Printf("Elapsed time was %s\n", elapsed)
+	// We want to store the activation id if it's not a ping!
+	// The format of the output is
+	// ok: invoked /_/simple_math with id 1d6b703e1e5d4d39ab703e1e5dcd3984
 	if logData {
-		logFn(fnName, elapsed)
+		activationMU.Lock()
+		components := strings.Split(string(output), " ")
+		activationId := components[len(components)-1]
+		activationList = append(activationList, activationId)
+		activationMU.Unlock()
 	}
 }
 
 // Gateway function that receives a fnRequest from the workload
 func ReceiveEvent(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("Receive event called!")
+	log.Println("Receive event called!")
 	body, err := io.ReadAll(r.Body)
 	_ = body
 	if err != nil {
@@ -115,7 +103,7 @@ func ReceiveEvent(w http.ResponseWriter, r *http.Request) {
 		}
 		params[param] = value[0]
 	}
-	fmt.Println(fnName)
+	log.Println(fnName)
 	// Acknowledge immediately
 	w.WriteHeader(http.StatusOK)
 	go CallFn(fnName, params, true)
@@ -173,12 +161,11 @@ func initialize() {
 	default:
 		log.Fatalf("Strategy not specified")
 	}
+	activationList = make([]string, 0)
 	// launch the periodic scheduling algorithm only if the PollingPeriodicity is greater than 0
 	if Config.PollingPeriodicity > 0 {
 		go schedule()
 	}
-	// initialize logging
-	fnTimings = make(map[string][]time.Duration)
 }
 
 func usage() {
