@@ -1,2 +1,2 @@
 pollingPeriodicity: 0
-strategy: lru
+strategy: lru  # This does not matter
