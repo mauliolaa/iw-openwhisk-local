@@ -1,7 +1,7 @@
 """
 This python script scrapes the openwhisk log file, keeping count of how many cold, recreated and warm containers there are.
 """
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, is_dataclass, asdict
 import sys
 import dateutil.parser
 from datetime import datetime as dt
@@ -18,6 +18,14 @@ class ActionMetric:
     warmedContainerCount: int = 0
     coldContainerCount: int = 0
     recreatedContainerCount: int = 0
+    
+
+class TaskmasterJSONEncoder(json.JSONEncoder):
+    """Helps to encode dataclasses into json format"""
+    def default(self, o):
+        if is_dataclass(o):
+            return asdict(o)
+        return super().default(o)
 
 
 if len(sys.argv) != 4:
@@ -82,19 +90,19 @@ for tracking_id in tracking_activation_ids.keys():
     print(f"Handling {tracking_id}")
     command = f"wsk activation get {tracking_id}"
     result = subprocess.run(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+    # An activation may be missed
     if result.returncode != 0:
-        print(result.stderr)
-        exit(1)
+        print("\033[91m: " + result.stderr + "\033[0m")
+        continue
     json_result = result.stdout
     # This will be of the form 
     # ok: got activation {activation} \n
     # json result
     # We strip the first line by splitting then joining back into a string and parsing into a dict. No better way I think
     json_result = json.loads("".join(result.stdout.split("\n")[1:]))
-    print(json_result)
     action_name = json_result["name"]
-    # In miliseconds, convert to seconds
-    duration = json_result["duration"] * 0.001  # TODO: Find unit time measurement
+    # In miliseconds
+    duration = json_result["duration"]
     metrics_of_interest[action_name].elapsedTimes.append(duration)
     # Obtain container state
     for line in tracking_activation_ids[tracking_id]:
@@ -107,11 +115,6 @@ for tracking_id in tracking_activation_ids.keys():
         elif "containerState: recreated container" in line:
             metrics_of_interest[action_name].recreatedContainerCount += 1
                 
-print(f"{metrics_of_interest.items()}")
-with open(f"results.txt", "w") as f:
-    f.write("Metrics of interest\n")
-    for k, v in metrics_of_interest.items():
-        f.write(f"{k=} {v=}\n")
-    f.write("Lines of interest\n")
-    for line in lines_of_interest:
-        f.write(f"{line}\n")
+print(metrics_of_interest)
+with open(f"results.json", "w") as f:
+    json.dump(metrics_of_interest, f, cls=TaskmasterJSONEncoder)
