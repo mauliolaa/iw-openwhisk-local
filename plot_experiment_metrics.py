@@ -21,7 +21,7 @@ with open(filename, "r") as inf:
             plt.hist(funcResults["elapsedTimes"], bins=10, color='blue', alpha=0.7)
             plot_name = f"Histogram of {funcName}|{funcResults['language']}"
             plt.title(plot_name)
-            plt.xlabel(f"Time (seconds)")
+            plt.xlabel(f"Time (milliseconds)")
             plt.ylabel("Frequency")
             text_message = f"Cold: {funcResults['coldContainerCount']}"
             plt.text(0.05, 0.95, text_message, transform=plt.gca().transAxes, bbox=dict(facecolor='white', edgecolor='black', boxstyle='round,pad=0.5'))
