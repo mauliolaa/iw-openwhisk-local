@@ -128,3 +128,29 @@ Parameters:
 
 
 Number of experiments to run
+
+### Experiments to run
+
+```bash
+go run main.go naiveconfig.yaml lru_config.yaml functions_test
+python simulate.py test_workload functions_test http://127.0.0.1:1024
+python get_experiment_metrics.py openwhisk/outty6.log taskmaster/functions_test http://127.0.0.1:1024
+```
+
+
+## Notes
+
+### Compiling Java
+
+Compiling Java actions requre you to compile with --release 8 flag as the Openwhisk Java runtime only supports Java 8. Not doing so will result in an application error.
+
+```bash
+cd functions
+javac --release 8 -cp Gson\ 2.10.1.jar Hello.java
+jar cvf Hello.jar Hello.class
+wsk action create HelloJava Hello.jar --main Hello
+```
+
+### Go cannot find binary
+
+TODO: Cannot get go openwhisk actions to invoke successfully. No idea why and googling doesn't help. Logs also do not show up. Invoking with debug gives no useful information. No issue on GitHub either. Temporarily ignore all go functions for now. 
