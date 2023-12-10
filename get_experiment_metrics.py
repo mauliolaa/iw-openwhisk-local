@@ -8,6 +8,7 @@ from datetime import datetime as dt
 import requests
 import subprocess
 import json
+from tqdm import tqdm
 
 @dataclass
 class ActionMetric:
@@ -86,8 +87,8 @@ with open(log_file_name, "r") as f:
             if tracking_id in line:
                 tracking_activation_ids[tracking_id].append(line)
 
-for tracking_id in tracking_activation_ids.keys():
-    print(f"Handling {tracking_id}")
+
+for tracking_id in tqdm(tracking_activation_ids.keys()):
     command = f"wsk activation get {tracking_id}"
     result = subprocess.run(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
     # An activation may be missed
