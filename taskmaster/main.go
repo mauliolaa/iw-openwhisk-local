@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bufio"
 	// "encoding/json"
 	"fmt"
 	"io"
@@ -50,6 +51,13 @@ func DumpData(w http.ResponseWriter, r *http.Request) {
 
 var Config taskmasterConfig = taskmasterConfig{}
 var strategy predictor.Predictor
+
+// mapping of actions to important information, current just language
+var actionMapping map[string]ActionInfo
+
+type ActionInfo struct {
+	language string
+}
 
 // Calls the Openwhisk interface
 // assumes that Openwhisk has been set up and that wsk cli utility exists on the system
@@ -138,9 +146,9 @@ func initialize() {
 		cmdPrompt = "bash"
 	}
 	// Parse yaml file into Config struct
-	config_filepath := os.Args[1]
-	predictor_filepath := os.Args[2]
-	yamlFile, err := os.ReadFile(config_filepath)
+	configFilepath := os.Args[1]
+	predictorFilepath := os.Args[2]
+	yamlFile, err := os.ReadFile(configFilepath)
 	if err != nil {
 		log.Fatalf("Error reading configuration file: %v", err)
 	}
@@ -152,12 +160,32 @@ func initialize() {
 	fmt.Printf("%+v", Config)
 	fmt.Printf("Config periodicity %d\n", Config.PollingPeriodicity)
 
+	// read in function file and populate action map
+	functionsFilepath := os.Args[3]
+	functionsFile, err := os.Open(functionsFilepath)
+	if err != nil {
+		log.Fatalf("Error reading functions file: %v", err)
+	}
+	defer functionsFile.Close()
+
+	functionsScanner := bufio.NewScanner(functionsFile)
+	functionsScanner.Split(bufio.ScanLines)
+	for functionsScanner.Scan() {
+		line := functionsScanner.Text()
+		components := strings.Split(line, " ")
+		actionName := components[0]
+		language := strings.Split(components[1], ".")[1]
+		actionMapping[actionName] = ActionInfo{language: language}
+	}
+
 	// initialize the strategy
 	switch Config.Strategy {
 	case "lru":
-		strategy = predictor.NewLRU(predictor_filepath)
+		strategy = predictor.NewLRU(predictorFilepath)
 	case "mfe":
 		strategy = predictor.NewMFE()
+	case "pq":
+		strategy = predictor.NewPriorityQueue()
 	default:
 		log.Fatalf("Strategy not specified")
 	}
@@ -169,12 +197,13 @@ func initialize() {
 }
 
 func usage() {
-	if len(os.Args) != 3 {
+	if len(os.Args) != 4 {
 		usage := `[Usage]: [general_config] [predictor_config]
 		[general_config]: a yaml file that contains the following parameters
 			pollingPeriodicity: a float
 			strategy: Choose from 'lru', 'pq', 'ml', 'mfe'
 		[predictor_config]: a yaml file that corresponds to the predictor.
+		[functions_file]: file consisting of functions to be called
 		`
 		log.Panic(usage)
 	}
@@ -190,6 +219,7 @@ func updateStrategy(fnName string, fnParams map[string]string) {
 	}
 	// Add more information as we go along...
 	info["fnRequest"] = fnRequest
+	info["language"] = actionMapping[fnName].language
 	strategy.Update(info)
 }
 

@@ -17,7 +17,7 @@ with open(filename, "r") as inf:
     results = json.load(inf)
     for funcName in results.keys():
         if funcName not in ["languages", "num_fns_completed"]:
-            funcResults = results[funcName] 
+            funcResults = results[funcName]
             plt.hist(funcResults["elapsedTimes"], bins=10, color='blue', alpha=0.7)
             plot_name = f"Histogram of {funcName}|{funcResults['language']}"
             plt.title(plot_name)
@@ -28,3 +28,4 @@ with open(filename, "r") as inf:
 
             plt.grid(True)
             plt.savefig(os.path.join(output_folder, plot_name))
+            plt.clf()
