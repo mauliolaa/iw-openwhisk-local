@@ -109,3 +109,22 @@ So we have to obtain our experiment metrics in a rather roundabout way
 Taskmaster will invoke all functions without receiving results and receiving the activation id.
 With the activation id, we can keep track of what are pings and what are legitimate non-activations.
 Then we can tabulate the warm/cold counters as well as elapsed timing.
+
+## Experiments
+
+Parameters: 
+- Polling Periodicity
+  - 1s
+  - 5s
+  - 15s
+- Predictors
+  - LRU
+  - MRU
+  - PQueue
+  - Baseline
+  - MFE
+- Workload
+  - 5000 seconds = 83 mins
+
+
+Number of experiments to run
