@@ -1,16 +1,12 @@
 package main
 
-import "log"
-
+// Main function for the action
 func Main(obj map[string]interface{}) map[string]interface{} {
 	name, ok := obj["name"].(string)
 	if !ok {
-		name = "world"
+		name = "stranger"
 	}
 	msg := make(map[string]interface{})
-	msg["message"] = "Hello, " + name + "!"
-	// log in stdout or in stderr
-	log.Printf("name=%s\n", name)
-	// encode the result back in json
+	msg["msg"] = "Hello, " + name + "!"
 	return msg
 }

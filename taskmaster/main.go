@@ -170,6 +170,7 @@ func initialize() {
 
 	functionsScanner := bufio.NewScanner(functionsFile)
 	functionsScanner.Split(bufio.ScanLines)
+	actionMapping = make(map[string]ActionInfo)
 	for functionsScanner.Scan() {
 		line := functionsScanner.Text()
 		components := strings.Split(line, " ")

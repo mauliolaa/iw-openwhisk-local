@@ -1,10 +1,10 @@
-hello_world_js functions/hello_world.js name=string,place=string
-hello_world_py functions/hello_world.py name=string,place=string
+hello_js functions/hello.js name=string,place=string
+fact_js functions/factorial.js n=int
 simple_math functions/simple_maths.py x=int,y=int
-hello_world_go functions/hello_go.go name=string
-hello_ruby functions/hello_ruby.rb name=string
-arrayrev functions/arrayrev.php name=string,place=string,x=int,y=int
-array functions/array.php name=string,place=string,x=int,y=int
-hello_php functions/hello_php.php name=string
-helloJava functions/Hello.jar name=string
-helloArray functions/HelloArray.jar
+fact_py functions/factorial.py n=int
+hello_ruby functions/hello.rb name=string
+fact_ruby functions/factorial.rb n=int
+hello_php functions/hello.php name=string
+fact_php functions/factorial.php name=string
+hello_java functions/Hello.jar name=string
+fact_java functions/Factorial.jar n=int
