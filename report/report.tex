@@ -3,6 +3,7 @@
 \usepackage{hyperref}
 \usepackage{graphicx}
 \usepackage{wrapfig}
+\usepackage{listings}
 \graphicspath{{./}}
 \title{Taskmaster}
 \author{
@@ -23,6 +24,14 @@ Serverless computing or the Functions-as-a-Service (FaaS) paradigm is a rapidly 
 
 \subsection{Architecture}
 
+\begin{figure}
+    \begin{center}
+        \includegraphics[width=\textwidth]{architecture.jpg}
+    \end{center}
+    \label{fig:taskmaster}
+    \caption{Taskmaster architecture}
+\end{figure}
+
 The architecture of Taskmaster can be seen in Figure \ref{fig:taskmaster}. Taskmaster essentially consists of three components: 
 \begin{enumerate}
     \item Gateway
@@ -40,7 +49,7 @@ The Strategy is implemented as an interface that supports two methods: Update an
 
 To test our system, we artifically generate function request workloads using the python script "generator.py". Several probability distributions can be used to represent different patterns of workloads but we currently use the Gaussian distribution with a specified mean and variance to control the intervals at which the functions are invoked. We also create a testbed of serverless functions in the "functions" folder which range from simple hello world programs to slightly more complex functions in a wide variety of programming languages. The scripts are easily extensible to support testing on a wide range of scenarios.
 
-\subsection{Strategy}
+\subsection{Strategy}\label{Strategy}
 
 In this section, we detail the different strategies that were employed and provide experimental results in the next section.
 
@@ -72,18 +81,35 @@ Maintain a counter for each function and then ping the Most Frequently Encounter
 
 \section{Experimental Results}
 
+For evaluation, we used the programming languages
+
+\begin{enumerate}
+    \item Java
+    \item Javascript
+    \item Php
+    \item Ruby
+    \item Python
+\end{enumerate}
+
+as well as simple functions that either had O(1) time complexity (the suite of Hello functions) as well as O(N) time complexity (the suite of factorial functions). This was to introduce some variance in the time it would take for the function completion. Golang was excluded from our testing suite as we ran into issues getting the go binary to execute on the serverless container. We generated our workload with the command and used this same test\_workload function for all experiments.
+
+\begin{lstlisting}[language=bash,caption={Generating the workload}]
+python generator.py test_workload 1000 5 1 functions_test 
+\end{lstlisting}
+
+For each strategy in \ref{Strategy}, we ran the simulation with polling periodicity set to 1, 5 and 10 seconds and measured the number of cold, prewarmed, warmed and recreated container states using Openwhisk's logs. We also ran an experiment with polling periodicity set to 0 to reflect the baseline wherein no strategy is used. The experimental results can be seen below.
+
+TODO: Finish experiments, plot a table of cold, prewarmed, warmed and recreated container states in total as well as for each function.
 
 \section{Conclusion and Further work}
 
+In this research project, we have investigated the use of "pinging" serverless functions in an attempt to remedy the cold start problem and TODO: Add conclusion
 
+Due to time limits, we were unable to add more complicated strategies that we initially had in mind, such as a ML forecasting approach that would train on the previous day's workload and use a Flask server as the endpoint for the prediction. We would also have explored a longer workload file with a larger suite of serverless functions lasting a full day instead of the current runtime of 1 hour 20 minutes for more realism in the experiments.
 
-\begin{figure}
-    \begin{center}
-        \includegraphics[width=\textwidth]{architecture.jpg}
-    \end{center}
-    \label{fig:taskmaster}
-    \caption{Taskmaster architecture}
-\end{figure}
+\section{Acknowledgements}
+
+Thanks to Leo Chen for his feedback on improving our project scope.
 
 \bibliography{ref.bib}
 \bibliographystyle{acm}
