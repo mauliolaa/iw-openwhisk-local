@@ -13,10 +13,20 @@ if len(sys.argv) != 3:
 filename = sys.argv[1]
 output_folder = sys.argv[2]
 os.makedirs(output_folder, exist_ok=True)
+metrics = {
+    "coldStarts": 0,
+    "warmStarts": 0,
+    "prewarmStarts": 0,
+    "recreatedStarts": 0,
+}
 with open(filename, "r") as inf:
     results = json.load(inf)
     for funcName in results.keys():
         if funcName not in ["languages", "num_fns_completed"]:
+            metrics["coldStarts"] += results[funcName]["coldContainerCount"]
+            metrics["warmStarts"] += results[funcName]["warmedContainerCount"]
+            metrics["prewarmStarts"] += results[funcName]["prewarmedContainerCount"]
+            metrics["recreatedStarts"] += results[funcName]["recreatedContainerCount"]
             funcResults = results[funcName]
             plt.hist(funcResults["elapsedTimes"], bins=10, color='blue', alpha=0.7)
             plot_name = f"Histogram of {funcName}-{funcResults['language']}"
@@ -29,3 +39,5 @@ with open(filename, "r") as inf:
             plt.grid(True)
             plt.savefig(os.path.join(output_folder, plot_name))
             plt.clf()
+
+print(metrics)

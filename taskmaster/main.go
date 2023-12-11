@@ -119,24 +119,6 @@ func ReceiveEvent(w http.ResponseWriter, r *http.Request) {
 	updateStrategy(fnName, params)
 }
 
-func PredictImage(w http.ResponseWriter, r *http.Request) {
-	// what should be sent here?
-	_, err := io.ReadAll(r.Body)
-	if err != nil {
-		http.Error(w, "Error reading request body", http.StatusInternalServerError)
-		return
-	}
-
-	// send prediction back
-	// image := predictor.Predict()
-	image := "Jotham"
-	_, err = w.Write([]byte(image))
-	if err != nil {
-		http.Error(w, "Error writing to response writer", http.StatusInternalServerError)
-		return
-	}
-}
-
 // initialize reads in the config file and initializes the scheduler accordingly
 func initialize() {
 	switch runtime.GOOS {
@@ -255,7 +237,6 @@ func main() {
 
 	// default handlers
 	http.HandleFunc("/receive", ReceiveEvent)
-	http.HandleFunc("/predict", PredictImage)
 	http.HandleFunc("/dumpData", DumpData)
 	err := http.ListenAndServe(fmt.Sprintf(":%d", port), nil)
 	if err != nil {
