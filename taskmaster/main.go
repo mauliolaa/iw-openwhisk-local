@@ -62,7 +62,7 @@ type ActionInfo struct {
 // Calls the Openwhisk interface
 // assumes that Openwhisk has been set up and that wsk cli utility exists on the system
 func CallFn(fnName string, parameters map[string]string, logData bool) {
-	// make a call to the faascli with the requested fnName
+	// make a call to the wsk cli with the requested fnName
 	cmd := fmt.Sprintf("wsk action invoke %s ", fnName)
 	for param, value := range parameters {
 		cmd = cmd + fmt.Sprintf("--param %s %s ", param, value)
