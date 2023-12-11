@@ -169,6 +169,10 @@ func initialize() {
 		strategy = predictor.NewMFE()
 	case "pq":
 		strategy = predictor.NewPriorityQueue()
+	case "rs":
+		strategy = predictor.NewRS()
+	case "mru":
+		strategy = predictor.NewMRU(predictorFilepath)
 	default:
 		log.Fatalf("Strategy not specified")
 	}
