@@ -19,7 +19,7 @@ with open(filename, "r") as inf:
         if funcName not in ["languages", "num_fns_completed"]:
             funcResults = results[funcName]
             plt.hist(funcResults["elapsedTimes"], bins=10, color='blue', alpha=0.7)
-            plot_name = f"Histogram of {funcName}|{funcResults['language']}"
+            plot_name = f"Histogram of {funcName}-{funcResults['language']}"
             plt.title(plot_name)
             plt.xlabel(f"Time (milliseconds)")
             plt.ylabel("Frequency")
