@@ -2,6 +2,8 @@ package main
 
 import (
 	"bufio"
+	"strconv"
+
 	// "encoding/json"
 	"fmt"
 	"io"
@@ -31,22 +33,49 @@ var cmdPrompt string
 var activationMU sync.Mutex
 var activationList []string
 
-const TaskmasterOutputFile = "taskmaster_activation_ids.txt"
+type PredictionLogRecord struct {
+	predictedFn string
+	timestamp   time.Time
+}
+
+var predictionRecords []PredictionLogRecord
+var simulationStarted = false
+
+// Filled in by config
+var experimentName string
+
+const TaskmasterActivationFile = "taskmaster_activation_ids.txt"
+const TaskmasterPingFile = "taskmaster_ping.txt"
 
 func DumpData(w http.ResponseWriter, r *http.Request) {
-	log.Print("Dumping data.")
-	f, err := os.Create(TaskmasterOutputFile)
+	log.Print("Dumping activation ids data.")
+	activationFile, err := os.Create(experimentName + TaskmasterActivationFile)
 	if err != nil {
 		log.Panic("Unable to create file with err: ", err)
 	}
-	defer f.Close()
+	defer activationFile.Close()
 
 	for _, activationId := range activationList {
-		_, err = f.WriteString(activationId)
+		_, err = activationFile.WriteString(activationId)
 		if err != nil {
 			log.Panic("Error writing to log: ", err)
 		}
 	}
+
+	pingFile, err := os.Create(experimentName + TaskmasterPingFile)
+	if err != nil {
+		log.Panic("Unable to create file with err: ", err)
+	}
+	defer pingFile.Close()
+
+	for _, pingRecord := range predictionRecords {
+		s := pingRecord.timestamp.String() + " " + pingRecord.predictedFn
+		_, err = pingFile.WriteString(s + "\n") // \n is needed for the timestamp
+		if err != nil {
+			log.Panic("Error writing to log: ", err)
+		}
+	}
+
 }
 
 var Config taskmasterConfig = taskmasterConfig{}
@@ -77,12 +106,17 @@ func CallFn(fnName string, parameters map[string]string, logData bool) {
 	// We want to store the activation id if it's not a ping!
 	// The format of the output is
 	// ok: invoked /_/simple_math with id 1d6b703e1e5d4d39ab703e1e5dcd3984
+	// We also want to initialize the predictionLogRecords now since the simulation has started for realz
 	if logData {
 		activationMU.Lock()
 		components := strings.Split(string(output), " ")
 		activationId := components[len(components)-1]
 		activationList = append(activationList, activationId)
 		activationMU.Unlock()
+	}
+	if logData && !simulationStarted {
+		log.Println("Initialized prediction log records")
+		simulationStarted = true
 	}
 }
 
@@ -177,6 +211,8 @@ func initialize() {
 		log.Fatalf("Strategy not specified")
 	}
 	activationList = make([]string, 0)
+	predictionRecords = make([]PredictionLogRecord, 0)
+	experimentName = Config.Strategy + strconv.FormatInt(Config.PollingPeriodicity, 10)
 	// launch the periodic scheduling algorithm only if the PollingPeriodicity is greater than 0
 	if Config.PollingPeriodicity > 0 {
 		go schedule()
@@ -211,8 +247,18 @@ func updateStrategy(fnName string, fnParams map[string]string) {
 }
 
 func predict() {
+	// Do not waste prediction on nothing
+	if !simulationStarted {
+		log.Println("Simulation not started!")
+		return
+	}
 	log.Println("Predict called!")
 	response := strategy.Predict()
+	predictionRecord := PredictionLogRecord{
+		predictedFn: response.FnName,
+		timestamp:   time.Now(),
+	}
+	predictionRecords = append(predictionRecords, predictionRecord)
 	if response == predictor.NilPrediction {
 		log.Println("No function to be called!")
 		return
