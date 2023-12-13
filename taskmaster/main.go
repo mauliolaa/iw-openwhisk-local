@@ -285,12 +285,12 @@ func schedule() {
 func main() {
 	usage()
 	initialize()
-	port := 1024
+	// port := 1024
 
 	// default handlers
 	http.HandleFunc("/receive", ReceiveEvent)
 	http.HandleFunc("/dumpData", DumpData)
-	err := http.ListenAndServe(fmt.Sprintf(":%d", port), nil)
+	err := http.ListenAndServe("127.0.0.1:1024", nil)
 	if err != nil {
 		log.Panic(err)
 	}
