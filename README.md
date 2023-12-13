@@ -114,15 +114,16 @@ Then we can tabulate the warm/cold counters as well as elapsed timing.
 
 Parameters: 
 - Polling Periodicity
-  - 1s
   - 5s
   - 10s
+  - 15s
 - Predictors
   - LRU
   - MRU
   - PQueue
   - Baseline
   - MFE
+  - RS
 - Workload
   - 5000 seconds = 83 mins
 
