@@ -226,7 +226,7 @@ func usage() {
 		usage := `[Usage]: [general_config] [predictor_config]
 		[general_config]: a yaml file that contains the following parameters
 			pollingPeriodicity: a float
-			strategy: Choose from 'lru', 'pq', 'ml', 'mfe'
+			strategy: Choose from 'lru', 'pq', 'rs', 'mfe', 'mru'
 		[predictor_config]: a yaml file that corresponds to the predictor.
 		[functions_file]: file consisting of functions to be called
 		`
