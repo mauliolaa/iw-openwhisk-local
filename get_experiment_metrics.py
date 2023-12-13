@@ -29,10 +29,10 @@ class TaskmasterJSONEncoder(json.JSONEncoder):
         return super().default(o)
 
 
-if len(sys.argv) != 4:
+if len(sys.argv) != 5:
     usage = """[experiment logs]
     Usage:
-        python get_experiment_metrics.py [logfile] [functions_test] [faas_url]
+        python get_experiment_metrics.py [logfile] [functions_test] [faas_url] [activation_file]
     """
     print(usage)
     exit(1)
@@ -41,10 +41,14 @@ metrics_of_interest = {
     "languages": [],
     # Elapsed time taken for each function
 }
-TASKMASTER_ACTIVATION_LIST = "taskmaster/taskmaster_activation_ids.txt"
 
+TASKMASTER_ACTIVATION_LIST = sys.argv[4]
 functions_workload_filename = sys.argv[2]
 faas_url = sys.argv[3]
+# NOTE: Assumes that dump data has not yet been called
+query_url = faas_url + "/dumpData"
+requests.get(query_url)
+
     
 # Parse functions workload
 with open(functions_workload_filename, "r") as inf:
@@ -70,9 +74,7 @@ def parse_iso_time(line):
 
 # First get activation ids of interest
 tracking_activation_ids = {}
-# NOTE: Assumes that dump data has not yet been called
-query_url = faas_url + "/dumpData"
-requests.get(query_url)
+
 with open(TASKMASTER_ACTIVATION_LIST, "r") as inf:
     for line in inf.readlines():
         line = line.strip()

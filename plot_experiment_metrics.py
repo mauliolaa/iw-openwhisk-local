@@ -41,3 +41,7 @@ with open(filename, "r") as inf:
             plt.clf()
 
 print(metrics)
+# Copy file to directory
+import shutil
+
+shutil.copy(filename, output_folder)

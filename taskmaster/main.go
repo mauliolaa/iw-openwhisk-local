@@ -49,7 +49,7 @@ const TaskmasterPingFile = "taskmaster_ping.txt"
 
 func DumpData(w http.ResponseWriter, r *http.Request) {
 	log.Print("Dumping activation ids data.")
-	activationFile, err := os.Create(experimentName + TaskmasterActivationFile)
+	activationFile, err := os.Create(experimentName + "_" + TaskmasterActivationFile)
 	if err != nil {
 		log.Panic("Unable to create file with err: ", err)
 	}
@@ -62,7 +62,7 @@ func DumpData(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	pingFile, err := os.Create(experimentName + TaskmasterPingFile)
+	pingFile, err := os.Create(experimentName + "_" + TaskmasterPingFile)
 	if err != nil {
 		log.Panic("Unable to create file with err: ", err)
 	}
@@ -197,6 +197,8 @@ func initialize() {
 
 	// initialize the strategy
 	switch Config.Strategy {
+	case "naive":
+		strategy = nil
 	case "lru":
 		strategy = predictor.NewLRU(predictorFilepath)
 	case "mfe":
@@ -212,7 +214,7 @@ func initialize() {
 	}
 	activationList = make([]string, 0)
 	predictionRecords = make([]PredictionLogRecord, 0)
-	experimentName = Config.Strategy + strconv.FormatInt(Config.PollingPeriodicity, 10)
+	experimentName = Config.Strategy + "_" + strconv.FormatInt(Config.PollingPeriodicity, 10)
 	// launch the periodic scheduling algorithm only if the PollingPeriodicity is greater than 0
 	if Config.PollingPeriodicity > 0 {
 		go schedule()

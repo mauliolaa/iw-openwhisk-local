@@ -131,12 +131,137 @@ Number of experiments to run
 
 ### Experiments to run
 
+#### Naive
+
+Status: Done
+
 ```bash
+cd taskmaster
 go run main.go naiveconfig.yaml lru_config.yaml functions_test
 python simulate.py test_workload functions_test http://127.0.0.1:1024
-python get_experiment_metrics.py openwhisk/outty6.log taskmaster/functions_test http://127.0.0.1:1024
+cd ..
+python get_experiment_metrics.py openwhisk/outty.log taskmaster/functions_test http://127.0.0.1:1024 naive_0_taskmaster_activation_ids.txt
+python plot_experiment_metrics.py results.json naive
+# No point
+# python visualize_events.py a lru_10_taskmaster_ping.txt functions_test lru_10_ping
 ```
 
+#### LRU
+
+##### LRU 1
+
+```bash
+cd taskmaster
+go run main.go lru_1_config.yaml lru_config.yaml functions_test
+python simulate.py test_workload functions_test http://127.0.0.1:1024
+cd ..
+python get_experiment_metrics.py openwhisk/outty.log taskmaster/functions_test http://127.0.0.1:1024 taskmaster/lru_1_taskmaster_activation_ids.txt
+python plot_experiment_metrics.py results.json lru_1
+python visualize_events.py a taskmaster/lru_1_taskmaster_ping.txt taskmaster/functions_test lru_1/lru_1_ping
+```
+
+##### LRU 5
+
+```bash
+cd taskmaster
+go run main.go lru_5_config.yaml lru_config.yaml functions_test
+python simulate.py test_workload functions_test http://127.0.0.1:1024
+cd ..
+python get_experiment_metrics.py openwhisk/outty.log taskmaster/functions_test http://127.0.0.1:1024 taskmaster/lru_5_taskmaster_activation_ids.txt
+python plot_experiment_metrics.py results.json lru_5
+python visualize_events.py a taskmaster/lru_5_taskmaster_ping.txt taskmaster/functions_test lru_5/lru_5_ping
+```
+
+##### LRU 10
+
+
+```bash
+cd taskmaster
+go run main.go lru_10_config.yaml lru_config.yaml functions_test
+python simulate.py test_workload functions_test http://127.0.0.1:1024
+cd ..
+python get_experiment_metrics.py openwhisk/outty.log taskmaster/functions_test http://127.0.0.1:1024 taskmaster/lru_10_taskmaster_activation_ids.txt
+python plot_experiment_metrics.py results.json lru_10
+python visualize_events.py a taskmaster/lru_10_taskmaster_ping.txt taskmaster/functions_test lru_10/lru_10_ping
+```
+
+#### MFE
+
+##### MFE 1
+
+```bash
+cd taskmaster
+go run main.go mfe_1_config.yaml mfe_config.yaml functions_test
+python simulate.py test_workload functions_test http://127.0.0.1:1024
+cd ..
+python get_experiment_metrics.py openwhisk/outty.log taskmaster/functions_test http://127.0.0.1:1024 taskmaster/mfe_1_taskmaster_activation_ids.txt
+python plot_experiment_metrics.py results.json mfe_1
+python visualize_events.py a taskmaster/mfe_1_taskmaster_ping.txt taskmaster/functions_test mfe_1/mfe_1_ping
+```
+
+##### MFE 5
+
+```bash
+cd taskmaster
+go run main.go mfe_5_config.yaml mfe_config.yaml functions_test
+python simulate.py test_workload functions_test http://127.0.0.1:1024
+cd ..
+python get_experiment_metrics.py openwhisk/outty.log taskmaster/functions_test http://127.0.0.1:1024 taskmaster/mfe_5_taskmaster_activation_ids.txt
+python plot_experiment_metrics.py results.json mfe_5
+python visualize_events.py a taskmaster/mfe_5_taskmaster_ping.txt taskmaster/functions_test mfe_5/mfe_5_ping
+```
+
+##### MFE 10
+
+
+```bash
+cd taskmaster
+go run main.go mfe_10_config.yaml lru_config.yaml functions_test
+python simulate.py test_workload functions_test http://127.0.0.1:1024
+cd ..
+python get_experiment_metrics.py openwhisk/outty.log taskmaster/functions_test http://127.0.0.1:1024 taskmaster/mfe_10_taskmaster_activation_ids.txt
+python plot_experiment_metrics.py results.json mfe_10
+python visualize_events.py a taskmaster/mfe_10_taskmaster_ping.txt taskmaster/functions_test mfe_10/mfe_10_ping
+``` 
+
+#### MRU
+
+##### MRU 1
+
+```bash
+cd taskmaster
+go run main.go mru_1_config.yaml mru_config.yaml functions_test
+python simulate.py test_workload functions_test http://127.0.0.1:1024
+cd ..
+python get_experiment_metrics.py openwhisk/outty.log taskmaster/functions_test http://127.0.0.1:1024 taskmaster/mru_1_taskmaster_activation_ids.txt
+python plot_experiment_metrics.py results.json mru_1
+python visualize_events.py a taskmaster/mru_1_taskmaster_ping.txt taskmaster/functions_test mru_1/mru_1_ping
+```
+
+##### MRU 5
+
+```bash
+cd taskmaster
+go run main.go mru_5_config.yaml mru_config.yaml functions_test
+python simulate.py test_workload functions_test http://127.0.0.1:1024
+cd ..
+python get_experiment_metrics.py openwhisk/outty.log taskmaster/functions_test http://127.0.0.1:1024 taskmaster/mru_5_taskmaster_activation_ids.txt
+python plot_experiment_metrics.py results.json mru_5
+python visualize_events.py a taskmaster/mru_5_taskmaster_ping.txt taskmaster/functions_test mru_5/mru_5_ping
+```
+
+##### MRU 10
+
+
+```bash
+cd taskmaster
+go run main.go mru_10_config.yaml mru_config.yaml functions_test
+python simulate.py test_workload functions_test http://127.0.0.1:1024
+cd ..
+python get_experiment_metrics.py openwhisk/outty.log taskmaster/functions_test http://127.0.0.1:1024 taskmaster/mru_10_taskmaster_activation_ids.txt
+python plot_experiment_metrics.py results.json mru_10
+python visualize_events.py a taskmaster/mru_10_taskmaster_ping.txt taskmaster/functions_test mru_10/mru_10_ping
+``` 
 
 ## Notes
 
