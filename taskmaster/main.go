@@ -290,7 +290,7 @@ func main() {
 	// default handlers
 	http.HandleFunc("/receive", ReceiveEvent)
 	http.HandleFunc("/dumpData", DumpData)
-	err := http.ListenAndServe(fmt.Sprintf(":%d", port), nil)
+	err := http.ListenAndServe(fmt.Sprintf("127.0.0.1:%d", port), nil)
 	if err != nil {
 		log.Panic(err)
 	}
