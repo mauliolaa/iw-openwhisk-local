@@ -154,7 +154,7 @@ python plot_experiment_metrics.py results.json naive
 
 ```bash
 cd taskmaster
-go run main.go lru_5_config.yaml lru_config.yaml functions_test
+go run main.go confs/lru_5.yaml confs/lru_config.yaml functions_test
 python simulate.py test_workload functions_test http://127.0.0.1:1024
 cd ..
 python get_experiment_metrics.py openwhisk/outty.log taskmaster/functions_test http://127.0.0.1:1024 taskmaster/lru_5_taskmaster_activation_ids.txt
@@ -265,6 +265,51 @@ python plot_experiment_metrics.py results.json mru_15
 python visualize_events.py a taskmaster/mru_15_taskmaster_ping.txt taskmaster/functions_test mru_15/mru_15_ping
 ```
 
+#### PQ
+
+##### PQ 5
+
+The pq_config.yaml file does not matter
+
+```bash
+cd taskmaster
+go run main.go confs/pq_5.yaml pq_config.yaml functions_test
+python simulate.py test_workload functions_test http://127.0.0.1:1024
+cd ..
+python get_experiment_metrics.py openwhisk/outty.log taskmaster/functions_test http://127.0.0.1:1024 taskmaster/pq_5_taskmaster_activation_ids.txt
+python plot_experiment_metrics.py results.json pq_5
+python visualize_events.py a taskmaster/pq_5_taskmaster_ping.txt taskmaster/functions_test pq_5/pq_5_ping
+```
+
+##### PQ 10
+
+The pq_config.yaml file does not matter
+
+```bash
+cd taskmaster
+go run main.go confs/pq_10.yaml pq_config.yaml functions_test
+python simulate.py test_workload functions_test http://127.0.0.1:1024
+cd ..
+python get_experiment_metrics.py openwhisk/outty.log taskmaster/functions_test http://127.0.0.1:1024 taskmaster/pq_10_taskmaster_activation_ids.txt
+python plot_experiment_metrics.py results.json pq_10
+python visualize_events.py a taskmaster/pq_10_taskmaster_ping.txt taskmaster/functions_test pq_10/pq_10_ping
+```
+
+##### PQ 15
+
+The pq_config.yaml file does not matter
+
+```bash
+cd taskmaster
+go run main.go confs/pq_15.yaml pq_config.yaml functions_test
+python simulate.py test_workload functions_test http://127.0.0.1:1024
+cd ..
+python get_experiment_metrics.py openwhisk/outty.log taskmaster/functions_test http://127.0.0.1:1024 taskmaster/pq_15_taskmaster_activation_ids.txt
+python plot_experiment_metrics.py results.json pq_15
+python visualize_events.py a taskmaster/pq_15_taskmaster_ping.txt taskmaster/functions_test pq_15/pq_15_ping
+```
+
+
 ## Notes
 
 ### Compiling Java
@@ -281,3 +326,19 @@ wsk action create HelloJava Hello.jar --main Hello
 ### Go cannot find binary
 
 TODO: Cannot get go openwhisk actions to invoke successfully. No idea why and googling doesn't help. Logs also do not show up. Invoking with debug gives no useful information. No issue on GitHub either. Temporarily ignore all go functions for now. 
+
+## Random musings
+
+Some trends to take note of:
+
+1. Does the polling periodicity actually make a difference?
+   1. What is the trend as you go up with relation to container states and average latency of function response
+2. Write down that a polling periodicity of 1s causes Openwhisk to be overwhelmed, unfortunately no time to run full suite of experiments
+3. Which are the most effective (and harmful) strategies?
+4. Does an eyeball test on the time axis event plot suggest that the strategies are working as intended?
+   1. Mostly yes so far
+   2. PQ seems most promising
+   3. Must look at MFE
+      1. Since distribution is uniform, maybe will seem similar
+5. How would the results differ if the workload distribution was not Gaussian?
+   1. Potential future explorations
