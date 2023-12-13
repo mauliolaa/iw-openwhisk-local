@@ -157,7 +157,7 @@ func ReceiveEvent(w http.ResponseWriter, r *http.Request) {
 func initialize() {
 	switch runtime.GOOS {
 	case "windows":
-		cmdPrompt = "cmd"
+		cmdPrompt = "powershell"
 	default:
 		cmdPrompt = "bash"
 	}
