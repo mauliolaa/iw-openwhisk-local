@@ -116,7 +116,7 @@ Parameters:
 - Polling Periodicity
   - 1s
   - 5s
-  - 15s
+  - 10s
 - Predictors
   - LRU
   - MRU
