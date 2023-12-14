@@ -1,7 +1,6 @@
 # $prefixarr defines which strategies and periodicities to run experiments on.
 # so "mfe_5" would be strategy=most frequently encountered, with periodicity=5
-$prefixarr = `
-    "rs_5", "rs_10", "rs_15"
+$prefixarr = "rs_10", "rs_15", "mfe_5", "mfe_10", "mfe_15"
     # "mfe_5", "mfe_10", "mfe_15", `
     # "mru_5", "mru_10", "mru_15", `
     
@@ -24,6 +23,14 @@ foreach ($prefix in $prefixarr) {
     Write-Output "$($prefix): Dumping data..."
     Invoke-RestMethod -Uri "127.0.0.1:1024/dumpData" -Method GET
     Start-Sleep -Seconds 7
+
+    Set-Location ..
+    Write-Output "$($prefix): Getting metrics..."
+    Start-Process python -ArgumentList '.\get_experiment_metrics.py', '.\..\openwhisk\openwhisk_out', '.\taskmaster\functions_test', 'http://127.0.0.1:1024', ".\taskmaster\$($prefix)_taskmaster_activation_ids.txt" -WindowStyle normal -Wait
+    # -RedirectStandardOutput ".\pyout" -RedirectStandardError ".\pyerr"
+    Start-Sleep -Seconds 2
+    Copy-Item "results.json" -Destination ".\taskmaster\exp_out\$($prefix)_results.json"
+    Set-Location .\taskmaster
 
     # Copy and rename the openwhisk log file
     Write-Output "$($prefix): Copying openwhisk_out"
