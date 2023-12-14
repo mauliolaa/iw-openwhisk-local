@@ -67,17 +67,14 @@ This strategy is the same as the LRU strategy, except that the most recently use
 
 \subsubsection{RS}
 
-Random selection maintains a list of recently used functions and then keeps a randomly selected function warm.
+Random selection maintains a list of all called functions and then keeps a randomly selected function warm. Perhaps this would be advantageous for some evenly distributed workloads.
 
 \subsubsection{PQ}
 
-\subsubsection{ML}
-
-Host a flask server with a ML model on it. Update appends to a log file. Train on it. Do inference.
 
 \subsubsection{MFE}
 
-Maintain a counter for each function and then ping the Most Frequently Encountered (MFE)
+Maintain a counter for each function call and then keep alive the Most Frequently Encountered (MFE) function. WIth this strategy, we aim to make the common (most frequent) case fast.
 
 \section{Experimental Results}
 
@@ -106,6 +103,8 @@ TODO: Finish experiments, plot a table of cold, prewarmed, warmed and recreated 
 In this research project, we have investigated the use of "pinging" serverless functions in an attempt to remedy the cold start problem and TODO: Add conclusion
 
 Due to time limits, we were unable to add more complicated strategies that we initially had in mind, such as a ML forecasting approach that would train on the previous day's workload and use a Flask server as the endpoint for the prediction. We would also have explored a longer workload file with a larger suite of serverless functions lasting a full day instead of the current runtime of 1 hour 20 minutes for more realism in the experiments.
+
+Additionally, creating some type of simulation suite of serverless functions and strategies could be a useful avenue to explore. Although this would require a complete reinstrumentation of our current testing methodology, it would allow us to run experiments on longer workloads on the order of days or weeks.
 
 \section{Acknowledgements}
 
