@@ -4,6 +4,7 @@
 \usepackage{graphicx}
 \usepackage{wrapfig}
 \usepackage{listings}
+\usepackage{multirow}
 \graphicspath{{./}}
 \title{Taskmaster}
 \author{
@@ -94,9 +95,31 @@ as well as simple functions that either had O(1) time complexity (the suite of H
 python generator.py test_workload 1000 5 1 functions_test 
 \end{lstlisting}
 
-For each strategy in \ref{Strategy}, we ran the simulation with polling periodicity set to 1, 5 and 10 seconds and measured the number of cold, prewarmed, warmed and recreated container states using Openwhisk's logs. We also ran an experiment with polling periodicity set to 0 to reflect the baseline wherein no strategy is used. The experimental results can be seen below.
+For each strategy in \ref{Strategy}, we ran the simulation with polling periodicity set to 5, 10, 15 seconds and measured the number of cold, prewarmed, warmed and recreated container states using Openwhisk's logs. We initially wanted to evaluate on a polling periodicity of 1 second but noticed that it was overwhelming the FaaS framework on our machine and causing it to return multiple failures, therefore scrapping it. We also ran an experiment with polling periodicity set to 0 to reflect the baseline wherein no strategy is used. The experimental results can be seen below.
 
 TODO: Finish experiments, plot a table of cold, prewarmed, warmed and recreated container states in total as well as for each function.
+
+\begin{center}
+\begin{tabular}{lrrrrrrrrrr}
+    \hline
+     Strat   &   Period &   Cold &   Warm &   Prewarmed &   Recreated &    Java &       py &      Js &      rb &      php \\
+    \hline
+     \multirow{3}{*}{lru}     &        5 &    422 &    119 &         156 &         303 & 11294.4 & 1252.22  & 238.653 & 5288.07 &  928.055 \\
+          &       10 &    356 &    151 &         149 &         344 & 10325.2 & 1107.04  & 209.56  & 4574.66 &  838.232 \\
+          &       15 &    342 &    148 &         146 &         364 & 12091.7 & 1242.46  & 278.87  & 4849.01 &  900.547 \\
+    \multirow{3}{*}{mfe}     &        5 &    216 &    212 &         157 &         415 & 10856.6 &  646.117 & 252.944 & 4615.13 &  892.022 \\
+          &       10 &    240 &    213 &         145 &         402 & 10981.5 &  706.737 & 559.838 & 4907.16 &  966.254 \\
+          &       15 &    224 &    208 &         146 &         422 & 11648.2 &  843.991 & 294.625 & 5412.53 & 1020.82  \\
+    \multirow{3}{*}{mru}     &        5 &    352 &    111 &         163 &         374 & 11371.9 & 1485.46  & 253.866 & 5023.53 &  912.354 \\
+          &       10 &    367 &    134 &         153 &         346 & 10373.3 & 1426.57  & 251.255 & 4754.13 & 1536.23  \\
+          &       15 &    335 &    139 &         150 &         374 & 11665   & 2537.04  & 536.574 & 5763.95 & 1567.71  \\
+    \multirow{3}{*}{pq}     &        5 &    355 &    122 &         158 &         365 & 10750.1 & 1188.42  & 257.181 & 4833.99 & 1212.46  \\
+          &       10 &    386 &    135 &         163 &         316 & 10764.6 & 1163.77  & 211.574 & 4529.99 &  838.945 \\
+          &       15 &    385 &    140 &         160 &         315 & 11548.2 & 1279.84  & 286.301 & 5384.35 &  914.873 \\
+     naive   &        5 &    301 &    200 &         128 &         371 & 11798.6 & 1099.46  & 497.421 & 4662.8  & 1187.24  \\
+    \hline
+\end{tabular}
+\end{center}
 
 \section{Conclusion and Further work}
 
@@ -108,7 +131,7 @@ Additionally, creating some type of simulation suite of serverless functions and
 
 \section{Acknowledgements}
 
-Thanks to Leo Chen for his feedback on improving our project scope.
+Thanks to Yue Tan, Yiwei Dai and Leo Chen for their feedback.
 
 \bibliography{ref.bib}
 \bibliographystyle{acm}
