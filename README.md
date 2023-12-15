@@ -101,10 +101,13 @@ python simulate.py test_workload functions_test http://127.0.0.1:1024
 
 replacing test_workload and functions_test with your own ones if preferrable.
 
-When the workload is finished, run the following command
+When the workload is finished, run the following command, replacing all files with their corresponding ones. Or simply refer to the Experiment prompts.
 
 ```bash
-curl -X get "localhost:1024/dumpData"
+cd ..
+python get_experiment_metrics.py openwhisk/outty.log taskmaster/functions_test http://127.0.0.1:1024 taskmaster/lru_5_taskmaster_activation_ids.txt
+python plot_experiment_metrics.py results.json lru_5
+python visualize_events.py a taskmaster/lru_5_taskmaster_ping.txt taskmaster/functions_test lru_5/lru_5_ping
 ```
 
 This causes taskmaster to dump the experimental metrics into a log file for further analysis.
