@@ -8,6 +8,7 @@ First, you want to install the following stuff
    1. Requires java, gradle and docker
 2. wsk cli
 
+You want to clone the latest stable version of Openwhisk into this folder!
 You want to follow the openwhisk instructions for configuring the wsk cli to work with Openwhisk.
 
 ## Project Structure
