@@ -1,5 +1,7 @@
 # Instructions
 
+All set up was done on an M1 Mac machine. No other devices have been tested.
+
 First, you want to install the following stuff
 
 1. Openwhisk
@@ -7,6 +9,47 @@ First, you want to install the following stuff
 2. wsk cli
 
 You want to follow the openwhisk instructions for configuring the wsk cli to work with Openwhisk.
+
+## Project Structure
+
+Results are excluded.
+
+```
+├── README.md  # You are reading this
+├── bugreport.md  # Antiquated, only had one minor bug that we decided to ignore by doing a different approach
+├── generate_overall_results.py  # Used to generate a json file of the overall results used for the latex table
+├── get_experiment_metrics.py  # Used to scrape the experimental results from the openwhisk log file
+├── plot_container_states.py  # Used to obtain the stacked bar plots of the container states
+├── plot_experiment_metrics.py  # Used to obtain the histogram of the function timings 
+├── obtain_latencies.py  # Obtain the latencies for each programming language
+├── report  # The folder for our report
+├── results_to_table.py  # Used to produce the latex string for the table of results. Further manual work needed to merge cells
+├── taskmaster
+│   ├── confs            # The various configuration files used for the experiments
+│   ├── functions        # The suite of functions for use by the simulation
+│   ├── functions_test   # The file describing the action names (for openwhisk), their corresponding file and parameters
+│   ├── generator.py     # Generates a workload for the simulation given a functions file and their respective serverless functions
+│   ├── main.go          # Taskmaster
+│   ├── plot_workload.py # Plots the action and language counts for a given workload
+│   ├── predictor        # The strategies used for the simulation alongside their test cases. Names are self explanatory
+│   │   ├── lru.go
+│   │   ├── lru_test.go
+│   │   ├── mfe.go
+│   │   ├── mfe_test.go
+│   │   ├── mru.go
+│   │   ├── mru_test.go
+│   │   ├── pqueue.go
+│   │   ├── pqueue_test.go
+│   │   ├── predictor.go
+│   │   ├── rs.go
+│   │   └── rs_test.go
+│   ├── run_exps.ps1     # Untested powershell script for automating it. Use at your own risk
+│   ├── simulate.py      # Used to simulate the workload on taskmaster
+│   ├── test_workload    # The actual workload we used. Feel free to use this to reproduce our results
+│   ├── test_workload_short  # A shorter workload for making sure it works before committing 1 hours and 20 minutes
+├── visualize_events.py  # Generates the event timeline for either the workload or the "pings"
+├── workload_events workload.png   # The event timeline for our test workload
+```
 
 ## How to run stuff
 
@@ -25,7 +68,7 @@ Note: may need to reserve extra jvm memory for openwhisk with -Xmx option. Examp
 java -Xmx4096m -jar bin/openwhisk-standalone.jar > openwhisk_out
 ```
 
-This will take a while to run on your first build but subsequent builds will be faster.
+This will take a while to run on your first build but subsequent builds will be faster. Please follow all instructions on wskcli using the default namespace option for MacOS.
 
 
 1. Run taskmaster
@@ -45,9 +88,9 @@ You should have some sample functions ready or simply use our functions at taskm
 Prepare the functions test file, refer to [this](taskmaster/functions_test).
 To generate a random workload file, refer to the [generator](taskmaster/generator.py)
 
-4. Run the simulator.py
+4. Run the commands in experiments section, using the correct workload and functions file
 
-5. Bring up observability dashboards
+5. Plot results and look
 
 In a new terminal process, run
 
@@ -72,20 +115,6 @@ This causes taskmaster to dump the experimental metrics into a log file for furt
 
 [name of function in openwhisk] [filename of function] [params comma delimited]
 
-
-## TODO
-
-1. Implement experimental benchmarking scripts?
-   2. Need to work on proper tabulation
-   3. Metrics can be obtained from Openwhisk's Container Start metrics
-2. Implement more extreme workloads
-3. Implement more strategies
-   1. Priority score for different languages based on [this](https://www.pluralsight.com/resources/blog/cloud/does-coding-language-memory-or-package-size-affect-cold-starts-of-aws-lambda)
-
-## FIXME: User events
-
-We are supposed to be able to observe the cold starts by passing in --user-events as a flag to the jar. But I am unable to get it to run on my m1 mac so a simpler alternative is to simply grep the logs for the cold counter events and keep track of the metrics the peasant way.
-
 ## Metrics of interest
 
 Container Start
@@ -93,6 +122,7 @@ Container Start
 openwhisk.counter.invoker_containerStart.cold_counter (counter) - Count of number of cold starts.
 openwhisk.counter.invoker_containerStart.recreated_counter (counter) - Count of number of times container is recreated.
 openwhisk.counter.invoker_containerStart.warm_counter (counter) - Count of number of times a warm container is used.
+openwhisk.counter.invoker_containerStart.prewarmed_counter (counter) - Count of number of times a prewarmed container is used.
 
 ## Misc Sources
 
@@ -123,7 +153,6 @@ Parameters:
   - PQueue
   - Baseline
   - MFE
-  - RS
 - Workload
   - 5000 seconds = 83 mins
 

@@ -9,3 +9,4 @@ report.fdb*
 report.fls
 report.synctex*
 __pycache__
+.metals

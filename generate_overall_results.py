@@ -5,7 +5,7 @@ periods = [5, 10, 15]
 
 strats = [
     "lru",
-    # "mfe",
+    "mfe",
     "mru",
     "pq",
     "naive"
