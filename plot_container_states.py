@@ -15,12 +15,10 @@ strats = [
     "mru",
     "mfe",
     "pq",
-    # "rs",
     "naive"
 ]
 
-periods = [5,]
-# periods = ["5", "10", "15"]
+periods = [5, 10, 15]
 
 total_cold_container_stats = {
     5: {},
@@ -91,7 +89,7 @@ for period in periods:
     axs.bar(total_warm_container_stats[period].keys(), total_warm_container_stats[period].values(), bottom=np.array(list(total_cold_container_stats[period].values())), label="Warmed", color="red")
     axs.bar(total_prewarmed_container_stats[period].keys(), total_prewarmed_container_stats[period].values(), bottom=np.array(list(total_cold_container_stats[period].values())) + np.array(list(total_warm_container_stats[period].values())),label="Prewarmed", color="salmon")
     axs.bar(total_recreated_container_stats[period].keys(), total_recreated_container_stats[period].values(), label="Recreated", bottom=np.array(list(total_cold_container_stats[period].values())) + np.array(list(total_warm_container_stats[period].values())) + np.array(list(total_prewarmed_container_stats[period].values())), color="dodgerblue")
-    plt.title("Total number of containers by strategy")
+    plt.title(f"Total number of containers for period {period}")
     plt.xlabel("Strategy")
     plt.ylabel("Number of container starts")
     plt.legend()
