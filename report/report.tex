@@ -5,6 +5,8 @@
 \usepackage{wrapfig}
 \usepackage{listings}
 \usepackage{multirow}
+\usepackage{array}
+\usepackage[margin=1in]{geometry}
 \graphicspath{{./}}
 \title{Taskmaster}
 \author{
@@ -99,7 +101,8 @@ For each strategy in \ref{Strategy}, we ran the simulation with polling periodic
 
 TODO: Finish experiments, plot a table of cold, prewarmed, warmed and recreated container states in total as well as for each function.
 
-\begin{center}
+\begin{table}
+    \centering
 \begin{tabular}{lrrrrrrrrrr}
     \hline
      Strat   &   Period &   Cold &   Warm &   Prewarmed &   Recreated &    Java &       py &      Js &      rb &      php \\
@@ -119,7 +122,7 @@ TODO: Finish experiments, plot a table of cold, prewarmed, warmed and recreated 
      naive   &        5 &    301 &    200 &         128 &         371 & 11798.6 & 1099.46  & 497.421 & 4662.8  & 1187.24  \\
     \hline
 \end{tabular}
-\end{center}
+\end{table}
 
 \section{Conclusion and Further work}
 
