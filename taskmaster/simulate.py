@@ -6,8 +6,6 @@ import requests
 import time
 import subprocess
 
-from workload_format import csv_params
-
 def usage():
     usage = """
     [taskmaster Simulate]
